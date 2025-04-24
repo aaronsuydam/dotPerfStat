@@ -24,6 +24,8 @@ public class MacCPUCoreMetadata : ICPUCoreMetadata
 public class MacOS_CPU : IMacCPU
 {
     public List<ICPUCore> Cores { get; }
+    public ICPUMetadata CPUArchInfo { get; }
+    public ICPUCoreMetadata CoreArchInfo { get; }
     public ICPUCoreMetadata ArchitectureInformation { get; }
     public MacCPUType ArchitectureFlavor { get; }
 
