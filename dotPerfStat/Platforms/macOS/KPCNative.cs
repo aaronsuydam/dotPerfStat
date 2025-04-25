@@ -29,5 +29,5 @@ public static partial class KPCNative
 
     [UnmanagedCallConv(CallConvs = new Type[] { typeof(CallConvCdecl) })]
     [LibraryImport(Kperf, EntryPoint = "kpc_get_cpu_counters", SetLastError = true)]
-    public static partial int kpc_get_cpu_counters([MarshalAs(UnmanagedType.Bool)] bool allCpus, uint classes, out  uint curCpu, [Out] ulong[] buf);
+    public static partial int kpc_get_cpu_counters([MarshalAs(UnmanagedType.Bool)] bool allCpus, u32 classes, out i32 curCpu, [Out] u64[] buf);
 }

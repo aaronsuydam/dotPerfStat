@@ -35,7 +35,7 @@ public class KPCNativeTests
                 throw new InvalidOperationException(rc.ToString());
             
             // First, ask how many fixed-function counters the kernel supports
-            uint nCtrs = (uint)KPCNative.kpc_get_counter_count(KPCNative.KPC_CLASS_FIXED_MASK);
+            i32 nCtrs = (i32)KPCNative.kpc_get_counter_count(KPCNative.KPC_CLASS_FIXED_MASK);
             if (nCtrs == 0)
                 throw new InvalidOperationException("No fixed counters available");
 

@@ -31,16 +31,18 @@ public interface ICPUCore
 
     public ICPUCoreMetadata ArchitectureInformation { get; }
     
-    public IDisposable Subscribe(IObserver<IStreamingCorePerfData> observer);
+    public IDisposable Subscribe(IObserver<IStreamingCorePerfData> observer, u16 update_frequency_ms = 1000);
 }
 
 public interface IStreamingCorePerfData
 {
-    public u64 Frequency { get; }
+    public DateTime Timestamp { get; }
+    public f32 Frequency { get; }
     public u128 Cycles { get; }
     public u64 UtilizationPercent { get; }
     public u64 UtilizationPercentUser { get; }
     public u64 UtilizationPercentKernel { get; }
+    public bool IsEmpty();
 }
 
 public interface ICPUCoreMetadata
