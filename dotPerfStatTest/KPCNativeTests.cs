@@ -1,9 +1,9 @@
 namespace dotPerfStatTest;
 
-using Xunit;
+using System.Runtime.InteropServices;
 using dotPerfStat.PlatformInvoke;
 using LibSystem;
-using System.Runtime.InteropServices;
+using Xunit;
 
 public class KPCNativeTests
 {

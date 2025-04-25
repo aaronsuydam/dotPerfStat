@@ -4,8 +4,8 @@ using Xunit.Abstractions;
 
 namespace dotPerfStatTest;
 
-using Xunit;
 using dotPerfStat.PlatformInvoke;
+using Xunit;
 
 public class SysctlTests(ITestOutputHelper testOutputHelper)
 {
