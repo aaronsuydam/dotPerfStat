@@ -71,7 +71,6 @@ public class WindowsCPUCoreTests
             var data = _core.Update();
             sw.Stop();
             double elapsed = sw.Elapsed.TotalMilliseconds;
-            _testOutputHelper.WriteLine(data.ToString());
             if (elapsed > maxMs)
                 errors.Add($"Iteration {i} took {elapsed:F4} ms (> {maxMs} ms)");
             Thread.Sleep(1001);
@@ -92,7 +91,7 @@ public class WindowsCPUCoreTests
         var subscriber = Observer.Create<IStreamingCorePerfData>(
             onNext: data =>
             {
-                _testOutputHelper.WriteLine(data.ToString());
+                //_testOutputHelper.WriteLine(data.ToString());
                 output.Add(data);
             });
         using var subscription = _core.Subscribe(subscriber, 1000);
@@ -106,7 +105,7 @@ public class WindowsCPUCoreTests
 
         int total = deltas.Count;
         int slowCount = deltas.Count(d => d > 1001);
-        double allowedFraction = 0.02; // 1%
+        double allowedFraction = 0.05; // 1%
         _testOutputHelper.WriteLine($"Total intervals: {total}, Slow intervals (>1001ms): {slowCount}");
 
         

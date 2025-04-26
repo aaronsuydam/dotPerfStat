@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Management;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.Versioning;
@@ -20,6 +21,7 @@ public class WinCPUCore : ICPUCore
     private PerformanceCounter _utilization;
     private PerformanceCounter _userUtilization;
     private PerformanceCounter _kernelUtilization;
+    private u64 max_freq = 0;
     private HiResSleep sw = new();
     
     private Task? monitoringLoop = null;
@@ -32,11 +34,23 @@ public class WinCPUCore : ICPUCore
         CoreNumber = coreNumber;
 
         string counter_core_id = "0," + CoreNumber.ToString();
+        
+        // Retrieve the maximum clock speed of the cpu from WMI and store it
+        // Create a ManagementObjectSearcher to query Win32_Processor
+        ManagementObjectSearcher searcher = new ManagementObjectSearcher("select MaxClockSpeed, Name from Win32_Processor");
+
+        foreach (ManagementObject obj in searcher.Get())
+        {
+            Debug.WriteLine("Processor Name: " + obj["Name"]);
+            Debug.WriteLine("Max Clock Speed: " + obj["MaxClockSpeed"] + " MHz");
+            Debug.WriteLine("---------------------------------------");
+            max_freq = (u32)obj["MaxClockSpeed"];
+        }
 
         _frequency = new PerformanceCounter("Processor Information", "% Processor Performance", counter_core_id);
         _utilization = new PerformanceCounter("Processor Information", "% Processor Time", counter_core_id);
-        _userUtilization   = new PerformanceCounter("Processor", "% User Time", counter_core_id);
-        _kernelUtilization = new PerformanceCounter("Processor", "% Privileged Time", counter_core_id);
+        _userUtilization   = new PerformanceCounter("Processor Information", "% User Time", counter_core_id);
+        _kernelUtilization = new PerformanceCounter("Processor Information", "% Privileged Time", counter_core_id);
     }
 
     public IDisposable Subscribe(IObserver<IStreamingCorePerfData> observer, u16 update_frequency_ms = 1000)
@@ -60,7 +74,8 @@ public class WinCPUCore : ICPUCore
     public StreamingCorePerfData Update()
     {
         StreamingCorePerfData newData = new StreamingCorePerfData(sw.GetTimestamp());
-        newData.Frequency = (UInt64)_frequency.NextValue();
+        var perf = (UInt64)_frequency.NextValue();
+        newData.Frequency = perf * max_freq * 10 * 1000;
         newData.UtilizationPercent = (u64)_utilization.NextValue();
         newData.UtilizationPercentUser = (u64)_userUtilization.NextValue();
         newData.UtilizationPercentKernel = (u64)_kernelUtilization.NextValue();
