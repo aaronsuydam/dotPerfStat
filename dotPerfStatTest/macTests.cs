@@ -55,10 +55,21 @@ namespace dotPerfStat.Tests
             Assert.NotEqual(initial.Timestamp, updated.Timestamp);
         }
 
+        [Fact]
+        public void MonitoringLoopValuesInRange()
+        {
+            var initial = _core.Update();
+            _testOutputHelper.WriteLine(initial.ToString());
+            Thread.Sleep(1001);
+            var updated = _core.Update();
+            _testOutputHelper.WriteLine(updated.ToString());
+            Assert.InRange(updated.UtilizationPercent, (u64)0, (u64)100);
+            Assert.InRange(updated.UtilizationPercent, (u64)0, (u64)100);
+            Assert.InRange(updated.UtilizationPercent, (u64)0, (u64)100);
+            Assert.Equal(updated.UtilizationPercentKernel + updated.UtilizationPercentUser, updated.UtilizationPercent);
+        }
         
-        /**
-         * this test ensures that repeated updates to core data doesn't take more than 1 ms.
-         */
+      
         [Fact]
         public void MonitoringLoopMultipleUpdates()
         {
@@ -72,9 +83,10 @@ namespace dotPerfStat.Tests
                 var data = _core.Update();
                 sw.Stop();
                 double elapsed = sw.Elapsed.TotalMilliseconds;
-                _testOutputHelper.WriteLine($"Iteration {i}: Elapsed={elapsed:F4} ms");
+                _testOutputHelper.WriteLine(data.ToString());
                 if (elapsed > maxMs)
                     errors.Add($"Iteration {i} took {elapsed:F4} ms (> {maxMs} ms)");
+                Thread.Sleep(1001);
             }
 
             if (errors.Any())
@@ -122,34 +134,6 @@ namespace dotPerfStat.Tests
                 $"Too many slow intervals: {slowCount}/{total} ({(double)slowCount/total:P2}) exceeded 1001ms"
             );
         }
-        
-        // [Fact]
-        // public void Update_PopulatesUtilization()
-        // {
-        //     // Act: call twice to allow delta computation
-        //     _core.Update();
-        //     _core.Update();
-        //
-        //     // Assert: percents in [0,100]
-        //     Assert.InRange((long)_core.UtilizationPercent, 0L, 100L);
-        //     Assert.InRange((long)_core.UtilizationPercentUser,  0L, 100L);
-        //     Assert.InRange((long)_core.UtilizationPercentKernel,0L, 100L);
-        // }
-        //
-        // [Fact]
-        // public void Update_IncreasesCyclesOverTime()
-        // {
-        //     // Act
-        //     _core.Update();
-        //     var first = _core.Cycles;
-        //     System.Threading.Thread.Sleep(50);
-        //     _core.Update();
-        //     var second = _core.Cycles;
-        //
-        //     // Assert: cycles should be non-decreasing and should increase by at least a few thousand
-        //     Assert.True(second >= first, "Cycles should never go backwards");
-        //     Assert.True(second - first > 1_000, "Expected at least some cycles to elapse");
-        // }
     }
 
     
