@@ -6,15 +6,20 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+        <PackageId>dotPerfStat</PackageId>
+        <Version>0.0.3</Version>
+        <Authors>Aaron Suydam</Authors>
+        <Company>your_company</Company>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
+   
 
     <ItemGroup>
       <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
       <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.4" />
       <PackageReference Include="System.Management" Version="9.0.4" />
       <PackageReference Include="System.Reactive" Version="6.0.1" />
-      <PackageReference Include="xunit" Version="2.9.3" />
     </ItemGroup>
 
     <ItemGroup>
