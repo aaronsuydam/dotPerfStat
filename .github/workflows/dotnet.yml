@@ -38,35 +38,7 @@ jobs:
           dotnet-version: 9.0.x
       - id: set-matrix
         shell: pwsh
-        run: |
-          # 1️⃣ List all tests (quiet console output + list-tests)
-          $raw = dotnet test dotPerfStatTest/dotPerfStatTest.csproj `
-            -p:TestingPlatformCaptureOutput=false -- `
-            --list-tests --no-build `
-            --logger "console;verbosity=quiet"
-          
-          # 2️⃣ Split into lines, then skip everything up to the header
-          $lines   = $raw -split "`r?`n"
-          $started = $false
-          $tests   = @()
-          foreach ($line in $lines) {
-            if (-not $started) {
-              if ($line -match '^The following Tests are available:') {
-                $started = $true
-                continue
-              }
-            }
-            elseif ($line.Trim()) {
-              $tests += $line.Trim()
-            }
-          }
-          
-          # 3️⃣ Pack into JSON array
-          $json = $tests | ConvertTo-Json -Compress
-          
-          # 4️⃣ Emit for GitHub Actions (modern syntax)
-          "test-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          Write-Host $json
+        run: ./scripts/ci/extract_test_names_to_json.ps1
   test:
     runs-on: windows-latest
     needs: [build, list-tests]
