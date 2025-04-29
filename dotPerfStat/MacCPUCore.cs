@@ -1,6 +1,6 @@
 using LibSystem;
 
-namespace dotPerfStat;
+namespace dotPerfStat.Types;
 
 using System;
 using System.Reactive.Subjects;

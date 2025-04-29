@@ -1,19 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Diagnostics;
-using System.Runtime.Versioning;
 using System.Reactive;
-using System.Reactive.Linq;
+using System.Runtime.Versioning;
 using dotPerfStat.PlatformInvoke;
 using dotPerfStat.Types;
 using LibSystem;
 using Xunit.Abstractions;
-using Xunit.Sdk;
-using Xunit;
 
-namespace dotPerfStat.Tests
+namespace dotPerfStatTest
 {
     [SupportedOSPlatform("macos")]
     public class MacCPUCoreTests
