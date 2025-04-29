@@ -1,7 +1,7 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: .NET
+name: Windows Unit Tests
 
 on:
   push:
@@ -24,5 +24,47 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity detailed
+
+  list-tests:
+    runs-on: windows-latest
+    needs: build
+    outputs: 
+      test-matrix: ${{ steps.set-matrix.outputs.text-matrix }}
+      
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: 
+          dotnet-version: 9.0.x
+      - id: set-matrix
+        run: |
+          # List tests (strip header/footer, one per line)
+          tests=$(dotnet test dotPerfStatTest/dotPerfStatTest.csproj \
+                    --list-tests --no-build \
+                  | sed '1,/^The following Tests$/d' \
+                  | sed '/^$/d' \
+                  | jq -R -s -c 'split("\n")[:-1]')
+          # Export as an output JSON array: ["Test1","Test2",...]
+          echo "::set-output name=test-matrix::$tests"
+  test:
+    runs-on: windows-latest
+    needs: [build, list-tests]
+    
+    # Creates one job per test defined in code.
+    strategy: 
+      fail-fast: false
+      matrix: 
+        testName: ${{ fromJson(needs.list-tests.output.test-matrix) }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      # Run each test.
+      - name: Run ${{ matrix.testName }}
+        run: | 
+          dotnet test dotPerfStatTest/dotPerfStatTest.csproj \
+            --no-build \
+            --configuration Release \
+            --filter "FullyQualifiedName~${{ matrix.testName }}
