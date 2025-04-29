@@ -39,20 +39,33 @@ jobs:
       - id: set-matrix
         shell: pwsh
         run: |
+          # 1️⃣ List all tests (quiet console output + list-tests)
           $raw = dotnet test dotPerfStatTest/dotPerfStatTest.csproj `
             -p:TestingPlatformCaptureOutput=false -- `
             --list-tests --no-build `
             --logger "console;verbosity=quiet"
           
-          # drop everything up through the "available:" line
-          $lines = $raw -split "`n" | Select-Object -SkipWhile {
-            $_ -notmatch '^The following Tests are available:' 
+          # 2️⃣ Split into lines, then skip everything up to the header
+          $lines   = $raw -split "`r?`n"
+          $started = $false
+          $tests   = @()
+          foreach ($line in $lines) {
+            if (-not $started) {
+              if ($line -match '^The following Tests are available:') {
+                $started = $true
+                continue
+              }
+            }
+            elseif ($line.Trim()) {
+              $tests += $line.Trim()
+            }
           }
-          # skip the header itself and any blank lines
-          $tests = $lines | Select-Object -Skip 1 | Where-Object { $_.Trim() -ne '' }
           
+          # 3️⃣ Pack into JSON array
           $json = $tests | ConvertTo-Json -Compress
-          Write-Output "::set-output name=test-matrix::$json"
+          
+          # 4️⃣ Emit for GitHub Actions (modern syntax)
+          "test-matrix=$json" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
   test:
     runs-on: windows-latest
     needs: [build, list-tests]
