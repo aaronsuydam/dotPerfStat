@@ -37,15 +37,22 @@ jobs:
         with: 
           dotnet-version: 9.0.x
       - id: set-matrix
+        shell: pwsh
         run: |
-          # List tests (strip header/footer, one per line)
-          tests=$(dotnet test dotPerfStatTest/dotPerfStatTest.csproj \
-                    --list-tests --no-build \
-                  | sed '1,/^The following Tests$/d' \
-                  | sed '/^$/d' \
-                  | jq -R -s -c 'split("\n")[:-1]')
-          # Export as an output JSON array: ["Test1","Test2",...]
-          echo "::set-output name=test-matrix::$tests"
+          $raw = dotnet test dotPerfStatTest/dotPerfStatTest.csproj `
+            -p:TestingPlatformCaptureOutput=false -- `
+            --list-tests --no-build `
+            --logger "console;verbosity=quiet"
+          
+          # drop everything up through the "available:" line
+          $lines = $raw -split "`n" | Select-Object -SkipWhile {
+            $_ -notmatch '^The following Tests are available:' 
+          }
+          # skip the header itself and any blank lines
+          $tests = $lines | Select-Object -Skip 1 | Where-Object { $_.Trim() -ne '' }
+          
+          $json = $tests | ConvertTo-Json -Compress
+          Write-Output "::set-output name=test-matrix::$json"
   test:
     runs-on: windows-latest
     needs: [build, list-tests]
