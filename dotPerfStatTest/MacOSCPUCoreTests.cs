@@ -30,14 +30,14 @@ namespace dotPerfStatTest
             _core = new MacCPUCore(0);
         }
         
-        [Fact]
+        [SkippableFact]
         public void Constructor_SetsCoreNumber()
         {
             // Act & Assert
             Assert.Equal((byte)0, _core.CoreNumber);
         }
         
-        [Fact]
+        [SkippableFact]
         public void MonitoringLoopUpdatesValues()
         {
             var initial = _core.Update();
@@ -48,7 +48,7 @@ namespace dotPerfStatTest
             Assert.NotEqual(initial.Timestamp, updated.Timestamp);
         }
 
-        [Fact]
+        [SkippableFact]
         public void MonitoringLoopValuesInRange()
         {
             var initial = _core.Update();
@@ -63,7 +63,7 @@ namespace dotPerfStatTest
         }
         
       
-        [Fact]
+        [SkippableFact]
         public void MonitoringLoopMultipleUpdates()
         {
             const int iterations = 10;
@@ -90,7 +90,7 @@ namespace dotPerfStatTest
         }
         
         
-        [Fact]
+        [SkippableFact]
         public void MonitoringLoopSubscriber()
         {
             List<IStreamingCorePerfData> output = new();

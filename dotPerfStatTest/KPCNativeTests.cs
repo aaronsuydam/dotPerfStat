@@ -1,13 +1,15 @@
 namespace dotPerfStatTest;
 
+using System.Runtime.Versioning;
 using System.Runtime.InteropServices;
 using dotPerfStat.PlatformInvoke;
 using LibSystem;
 using Xunit;
 
-public class KPCNativeTests
+[SupportedOSPlatform("macos")]
+public class KperfNativeTests
 {
-    [Fact]
+    [SkippableFact]
     public void TestActivateCounters()
     {
         int rc = KPCNative.kpc_force_all_ctrs_set(NativeMethods.mach_task_self(), 1);
@@ -21,7 +23,7 @@ public class KPCNativeTests
         }
     }
     
-    [Fact]
+    [SkippableFact]
     public void TestGetCPUFrequency()
     {
         try

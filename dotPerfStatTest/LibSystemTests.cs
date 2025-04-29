@@ -1,15 +1,16 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using LibSystem;
 
 namespace dotPerfStatTest;
 
 
-
+[SupportedOSPlatform("macos")]
 public class LibSystemTests
 {
      private const int Trials = 100;
 
-     [Fact]
+     [SkippableFact]
      public void GetHostProcessorInfo_VariesAcrossCalls()
      {
           // baseline from the public wrapper

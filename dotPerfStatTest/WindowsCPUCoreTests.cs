@@ -15,7 +15,7 @@ using Xunit.Abstractions;
 public class WindowsCPUCoreTests
 {
     private readonly WinCPUCore _core;
-    private ITestOutputHelper _testOutputHelper;
+    private readonly ITestOutputHelper _testOutputHelper;
 
     public WindowsCPUCoreTests(ITestOutputHelper testOutputHelper)
     {
@@ -25,14 +25,24 @@ public class WindowsCPUCoreTests
         _core = new WinCPUCore(0);
     }
     
-    [Fact]
+    /**
+     * <summary>
+     * Ensure that the Core Number is set appropriately.
+     * </summary>
+     */
+    [SkippableFact]
     public void Constructor_SetsCoreNumber()
     {
         // Act & Assert
         Assert.Equal((byte)0, _core.CoreNumber);
     }
     
-    [Fact]
+    /**
+     * <summary>
+     *  Tests that the Core object updates when instructed to.
+     * </summary>
+     */
+    [SkippableFact]
     public void MonitoringLoopUpdatesValues()
     {
         var initial = _core.Update();
@@ -43,7 +53,14 @@ public class WindowsCPUCoreTests
         Assert.NotEqual(initial.Timestamp, updated.Timestamp);
     }
 
-    [Fact]
+    /**
+     * <summary>
+     *  Tests that reported values make logical sense.
+     * </summary>
+     * Windows Performance Counters are polled sequentially, so we can't guarantee that the sum of User+Kernel time
+     * is exactly equal to the total utilization reported. This test passes if the delta is within +/- 2%.
+     */
+    [SkippableFact]
     public void MonitoringLoopValuesInRange()
     {
         var initial = _core.Update();
@@ -54,11 +71,16 @@ public class WindowsCPUCoreTests
         Assert.InRange(updated.UtilizationPercent, (u64)0, (u64)100);
         Assert.InRange(updated.UtilizationPercent, (u64)0, (u64)100);
         Assert.InRange(updated.UtilizationPercent, (u64)0, (u64)100);
-        Assert.Equal(updated.UtilizationPercentKernel + updated.UtilizationPercentUser, updated.UtilizationPercent);
+        
+        i64 delta = (i64) (updated.UtilizationPercent - (updated.UtilizationPercentUser + updated.UtilizationPercentKernel));
+        Assert.InRange(delta, -2, 2);
     }
     
-  
-    [Fact]
+    /**
+     * <summary>
+     * Tests execution time of the core monitoring logic. An update should take less than 1ms.
+     */
+    [SkippableFact]
     public void MonitoringLoopMultipleUpdates()
     {
         const int iterations = 10;
@@ -80,11 +102,18 @@ public class WindowsCPUCoreTests
         {
             foreach (var error in errors)
                 _testOutputHelper.WriteLine(error);
+            Assert.Fail("Too many slow iterations");
         }
     }
     
     
-    [Fact]
+    /**
+     * <summary>
+     * Tests execution latency of the observation logic. Each core update can only take 1ms, this test quantifies the overhead
+     * of the observation glue. The added overhead should be negligible.
+     * </summary>
+     */
+    [SkippableFact]
     public void MonitoringLoopSubscriber()
     {
         List<IStreamingCorePerfData> output = new();
