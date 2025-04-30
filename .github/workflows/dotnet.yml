@@ -57,7 +57,4 @@ jobs:
       # Run each test.
       - name: Run ${{ matrix.testName }}
         run: | 
-          dotnet test dotPerfStatTest/dotPerfStatTest.csproj \
-            --no-build \
-            --configuration Release \
-            --filter "FullyQualifiedName~${{ matrix.testName }}"
+          dotnet test dotPerfStatTest/dotPerfStatTest.csproj --no-build --configuration Release --filter "FullyQualifiedName~${{ matrix.testName }}"
