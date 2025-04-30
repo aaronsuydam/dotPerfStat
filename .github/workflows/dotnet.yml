@@ -29,7 +29,7 @@ jobs:
     runs-on: windows-latest
     needs: build
     outputs: 
-      test-matrix: ${{ steps.set-matrix.outputs.text-matrix }}
+      test-matrix: ${{ steps.set-matrix.outputs.test-matrix }}
       
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
     strategy: 
       fail-fast: false
       matrix: 
-        testName: ${{ fromJson(needs.list-tests.output.test-matrix) }}
+        testName: ${{ fromJson(needs.list-tests.outputs.test-matrix) }}
 
     steps:
       - uses: actions/checkout@v4
