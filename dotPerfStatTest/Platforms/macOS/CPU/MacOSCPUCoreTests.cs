@@ -9,12 +9,12 @@ using Xunit.Abstractions;
 namespace dotPerfStatTest
 {
     [SupportedOSPlatform("macos")]
-    public class MacCPUCoreTests
+    public class MacOSCPUCoreTests
     {
-        private readonly MacCPUCore _core;
+        private readonly macOS_CPUCore _core;
         private ITestOutputHelper _testOutputHelper;
 
-        public MacCPUCoreTests(ITestOutputHelper testOutputHelper)
+        public MacOSCPUCoreTests(ITestOutputHelper testOutputHelper)
         {
             int rc = 0;
             rc = KPCNative.kpc_set_counting(KPCNative.KPC_CLASS_FIXED_MASK);
@@ -27,14 +27,14 @@ namespace dotPerfStatTest
             _testOutputHelper = testOutputHelper;
 
             // Arrange: test Core 0 (you may wish to parametrize for other cores)
-            _core = new MacCPUCore(0);
+            _core = new macOS_CPUCore(3);
         }
         
         [SkippableFact]
         public void Constructor_SetsCoreNumber()
         {
             // Act & Assert
-            Assert.Equal((byte)0, _core.CoreNumber);
+            Assert.Equal((byte)3, _core.CoreNumber);
         }
         
         [SkippableFact]

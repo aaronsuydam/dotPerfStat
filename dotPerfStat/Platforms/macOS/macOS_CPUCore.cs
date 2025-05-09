@@ -3,16 +3,16 @@ using LibSystem;
 namespace dotPerfStat.Types;
 
 using System;
-using System.Reactive.Subjects;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
-using PlatformInvoke;
-using Types;
-using LibSystem;
+using System.Reactive.Subjects;
 using System.Runtime.Versioning;
+using System.Threading.Tasks;
+using Interfaces.CPU;
+using LibSystem;
+using PlatformInvoke;
 
 [SupportedOSPlatform("macos")]
-public partial class MacCPUCore : ICPUCore
+public partial class macOS_CPUCore : ICPUCore
 {
     public u8 CoreNumber { get; internal set; }
 
@@ -26,7 +26,7 @@ public partial class MacCPUCore : ICPUCore
     private CPULoadInfo current_ticks = new();
     private HiResSleep sw;
     
-    public MacCPUCore(u8 coreNumber)
+    public macOS_CPUCore(u8 coreNumber)
     {
         CoreNumber = coreNumber;
         sw = new HiResSleep();

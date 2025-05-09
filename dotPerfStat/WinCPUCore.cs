@@ -1,11 +1,13 @@
+namespace dotPerfStat;
+
 using System.Diagnostics;
 using System.Management;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.Versioning;
+using Interfaces.CPU;
 using dotPerfStat.Types;
 
-namespace dotPerfStat;
 
 [SupportedOSPlatform("windows")]
 public class WinCPUCore : ICPUCore
