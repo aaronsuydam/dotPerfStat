@@ -14,7 +14,7 @@ public class HiResSleep
         start = DateTime.Now;
     }
     
-    public void Sleep(i32 milliseconds)
+    public void Sleep(u32 milliseconds)
     {
         // Capture the current high-res counter at invocation
         long startCounter = Stopwatch.GetTimestamp();

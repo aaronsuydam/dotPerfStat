@@ -55,7 +55,7 @@ public class WinCPUCore : ICPUCore
         _kernelUtilization = new PerformanceCounter("Processor Information", "% Privileged Time", counter_core_id);
     }
 
-    public IDisposable Subscribe(IObserver<IStreamingCorePerfData> observer, u16 update_frequency_ms = 1000)
+    public IDisposable Subscribe(IObserver<IStreamingCorePerfData> observer, u32 updateFrequencyMs = 1000)
     {
         if (monitoringLoop == null)
         {
@@ -65,7 +65,7 @@ public class WinCPUCore : ICPUCore
                 {
                     var data = Update();
                     _subject.OnNext(data);
-                    sw.Sleep(update_frequency_ms);
+                    sw.Sleep(updateFrequencyMs);
                 }
             });
             monitoringLoop.Start();
