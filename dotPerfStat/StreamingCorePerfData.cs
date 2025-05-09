@@ -6,7 +6,7 @@ using System.Runtime.Versioning;
 using dotPerfStat.PlatformInvoke;
 using LibSystem;
 
-namespace dotPerfStat.Types
+namespace dotPerfStat
 {
 
     public class StreamingCorePerfData : IStreamingCorePerfData

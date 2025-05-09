@@ -23,8 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="CPUPerfService.cs" />
-      <None Include="CPUPerfService.cs" />
       <Compile Remove="MemoryService.cs" />
       <None Include="MemoryService.cs" />
     </ItemGroup>
