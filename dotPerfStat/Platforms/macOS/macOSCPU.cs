@@ -1,3 +1,6 @@
+using System.Reactive;
+using System.Reactive.Disposables;
+
 namespace dotPerfStat.Platforms.macOS;
 
 using System.Reactive.Linq;
@@ -77,14 +80,19 @@ public class MacOS_CPU : IMacCPU
         return MacCPUType.AppleSilicon;
     }
 
-    public IDisposable SubscribeToAllUpdates(IObserver<IList<IStreamingCorePerfData>> observer, u32 updateFrequencyMs = 1000)
+    public CompositeDisposable SubscribeToAllUpdates(IObserver<IList<IStreamingCorePerfData>> observer, u32 updateFrequencyMs = 1000)
     {
+        List<IDisposable> subscriptions = new();
         foreach (var core in Cores)
         {
-            core.update_frequency_ms = updateFrequencyMs;
+            subscriptions.Add(
+                core.Subscribe(Observer.Create<IStreamingCorePerfData>(_ => { }), updateFrequencyMs)
+                );
         }
         var zipped = Observable.Zip(Cores.Select(core => core.PerformanceData));
-        return zipped.Subscribe(observer);
+        var all_subscription = zipped.Subscribe(observer);
+        subscriptions.Add(all_subscription);
+        return new CompositeDisposable(subscriptions);
     }
 
     public IDisposable SubscribeToCoreUpdates(

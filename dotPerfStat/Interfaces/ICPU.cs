@@ -1,3 +1,5 @@
+using System.Reactive.Disposables;
+
 namespace dotPerfStat.Interfaces.CPU;
 
 /**
@@ -14,7 +16,8 @@ public interface ICPU
 
     public IEnumerable<IStreamingCorePerfData> ManualUpdate();
     
-    public IDisposable SubscribeToAllUpdates(IObserver<IList<IStreamingCorePerfData>> observer, u32 updateFrequencyMs);
+    public CompositeDisposable SubscribeToAllUpdates(IObserver<IList<IStreamingCorePerfData>> observer,
+        u32 updateFrequencyMs);
     public IDisposable SubscribeToCoreUpdates(IObserver<IStreamingCorePerfData> observer, u8 coreNumber,
         u32 updateFrequencyMs);
 }

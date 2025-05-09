@@ -16,6 +16,8 @@ public interface ICPUCore
     
     public IDisposable Subscribe(IObserver<IStreamingCorePerfData> observer, u32 update_frequency_ms = 1000);
     
+    public void SetUpdateFrequency(u32 updateFrequencyMs);
+    
     public StreamingCorePerfData Update();
 }
 

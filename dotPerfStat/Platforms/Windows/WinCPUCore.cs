@@ -24,6 +24,7 @@ public class WinCPUCore : ICPUCore
     private PerformanceCounter _userUtilization;
     private PerformanceCounter _kernelUtilization;
     private u64 max_freq = 0;
+    private u32 update_frequency_ms = 1000;
     private HiResSleep sw = new();
     
     private Task? monitoringLoop = null;
@@ -83,5 +84,9 @@ public class WinCPUCore : ICPUCore
         newData.UtilizationPercentKernel = (u64)_kernelUtilization.NextValue();
         return newData;
     }
-       
+
+    public void SetUpdateFrequency(u32 updateFrequencyMs)
+    {
+        this.update_frequency_ms = updateFrequencyMs;
+    }
 }

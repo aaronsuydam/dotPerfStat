@@ -22,7 +22,7 @@ public partial class macOS_CPUCore : ICPUCore
     public ICPUCoreMetadata ArchitectureInformation { get; }
 
     private Task? monitoringTask = null;
-    private u16 update_frequency_ms = 1000;
+    private u32 update_frequency_ms = 1000;
     private CPULoadInfo current_ticks = new();
     private HiResSleep sw;
     
@@ -33,9 +33,9 @@ public partial class macOS_CPUCore : ICPUCore
     }
 
     // Subscribe to the data source.
-    public IDisposable Subscribe(IObserver<IStreamingCorePerfData> observer, u16 update_frequency_ms = 1000)
+    public IDisposable Subscribe(IObserver<IStreamingCorePerfData> observer, u32 updateFrequencyMs = 1000)
     {
-        this.update_frequency_ms = update_frequency_ms;
+        this.update_frequency_ms = updateFrequencyMs;
         if (monitoringTask == null)
         {
             monitoringTask = new Task(() =>
@@ -44,7 +44,7 @@ public partial class macOS_CPUCore : ICPUCore
                 {
                     var data = MonitoringLoopIteration();
                     _subject.OnNext(data);
-                    sw.Sleep(update_frequency_ms);
+                    sw.Sleep(updateFrequencyMs);
                 }
             });
             monitoringTask.Start();
@@ -107,5 +107,9 @@ public partial class macOS_CPUCore : ICPUCore
         _subject.OnNext(updated_values);
         return updated_values;
     }
-    
+
+    public void SetUpdateFrequency(u32 updateFrequencyMs)
+    {
+        this.update_frequency_ms = updateFrequencyMs;
+    }
 }
