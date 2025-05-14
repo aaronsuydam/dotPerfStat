@@ -1,14 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Reactive;
 using System.Runtime.Versioning;
-using dotPerfStat.Types;
+using dotPerfStat.Platforms.macOS;
 
 [SupportedOSPlatform("macos")]
 public static class Program
 {
     public static void Main()
     {
-        macOS_CPUCore core = new macOS_CPUCore(3);
+        MacosCPUCore core = new MacosCPUCore(3);
 
         var million = 1000000;
         var subscriber = Observer.Create<IStreamingCorePerfData>(

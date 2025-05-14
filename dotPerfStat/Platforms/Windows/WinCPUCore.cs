@@ -6,8 +6,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.Versioning;
 using Interfaces.CPU;
-using dotPerfStat.Types;
-
 
 [SupportedOSPlatform("windows")]
 public class WinCPUCore : ICPUCore

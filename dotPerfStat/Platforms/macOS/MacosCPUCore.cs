@@ -1,18 +1,14 @@
-using LibSystem;
-
-namespace dotPerfStat.Types;
-
-using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.Versioning;
-using System.Threading.Tasks;
-using Interfaces.CPU;
+using dotPerfStat.Interfaces.CPU;
+using dotPerfStat.PlatformInvoke;
 using LibSystem;
-using PlatformInvoke;
+
+namespace dotPerfStat.Platforms.macOS;
 
 [SupportedOSPlatform("macos")]
-public partial class macOS_CPUCore : ICPUCore
+public partial class MacosCPUCore : ICPUCore
 {
     public u8 CoreNumber { get; internal set; }
 
@@ -21,40 +17,48 @@ public partial class macOS_CPUCore : ICPUCore
     
     public ICPUCoreMetadata ArchitectureInformation { get; }
 
-    private Task? monitoringTask = null;
-    private u32 update_frequency_ms = 1000;
-    private CPULoadInfo current_ticks = new();
-    private HiResSleep sw;
+    private Task? _monitoringTask = null;
+    private u32 _updateFrequencyMs = 1000;
+    private CPULoadInfo _currentTicks = new();
+    private readonly HiResSleep _sw;
     
-    public macOS_CPUCore(u8 coreNumber)
+    public MacosCPUCore(u8 coreNumber)
     {
         CoreNumber = coreNumber;
-        sw = new HiResSleep();
+        _sw = new HiResSleep();
     }
 
     // Subscribe to the data source.
     public IDisposable Subscribe(IObserver<IStreamingCorePerfData> observer, u32 updateFrequencyMs = 1000)
     {
-        this.update_frequency_ms = updateFrequencyMs;
-        if (monitoringTask == null)
+        this._updateFrequencyMs = updateFrequencyMs;
+        if (_monitoringTask == null)
         {
-            monitoringTask = new Task(() =>
+            _monitoringTask = new Task(() =>
             {
                 while (true)
                 {
-                    var data = MonitoringLoopIteration();
-                    _subject.OnNext(data);
-                    sw.Sleep(updateFrequencyMs);
+                    try
+                    {
+                        var data = MonitoringLoopIteration();
+                        _subject.OnNext(data);
+                    }
+                    catch (Exception ex)
+                    {
+                        _subject.OnError(ex);
+                        break;
+                    }
+                    _sw.Sleep(updateFrequencyMs);
                 }
             });
-            monitoringTask.Start();
+            _monitoringTask.Start();
         }
         return _subject.Subscribe(observer);
     }
 
     private StreamingCorePerfData MonitoringLoopIteration()
     {
-        StreamingCorePerfData newData = new(sw.GetTimestamp());
+        StreamingCorePerfData newData = new(_sw.GetTimestamp());
         // First, ask how many fixed-function counters the kernel supports
         u32 nCtrs = (u32)KPCNative.kpc_get_counter_count(KPCNative.KPC_CLASS_FIXED_MASK);
         if (nCtrs == 0)
@@ -68,7 +72,8 @@ public partial class macOS_CPUCore : ICPUCore
             throw new InvalidOperationException($"kpc_get_cpu_counters failed: {rc}");
         
         newData.Cycles = data[this.CoreNumber * nCtrs + 0];
-        if (!_subject.Value.IsEmpty()) // this will only be false for the first invocation
+        bool can_calc_freq = _subject.Value.IsEmpty();
+        if (!can_calc_freq)
         {
             u128 old_cycles = _subject.Value.Cycles;
             u128 delta_cycles = newData.Cycles - old_cycles;
@@ -80,13 +85,13 @@ public partial class macOS_CPUCore : ICPUCore
         
         // LoadInfo contains Ticks. We need to math to convert them to percentages.
         var loadInfo = NativeMethods.GetHostProcessorInfo(this.CoreNumber);
-        if (!current_ticks.IsEmpty())
+        if (!_currentTicks.IsEmpty())
         {
             CPULoadInfo elapsed_ticks = new();
-            elapsed_ticks.Idle = loadInfo.Idle - current_ticks.Idle;
-            elapsed_ticks.Nice = loadInfo.Nice - current_ticks.Nice;
-            elapsed_ticks.System = loadInfo.System - current_ticks.System;
-            elapsed_ticks.User = loadInfo.User - current_ticks.User;
+            elapsed_ticks.Idle = loadInfo.Idle - _currentTicks.Idle;
+            elapsed_ticks.Nice = loadInfo.Nice - _currentTicks.Nice;
+            elapsed_ticks.System = loadInfo.System - _currentTicks.System;
+            elapsed_ticks.User = loadInfo.User - _currentTicks.User;
             var total_ticks = elapsed_ticks.Idle + elapsed_ticks.Nice + elapsed_ticks.System + elapsed_ticks.User;
         
             float system_div_total = (f32) elapsed_ticks.System / (f32) total_ticks;
@@ -96,20 +101,28 @@ public partial class macOS_CPUCore : ICPUCore
             float nice_perc = (u32) (((f32) elapsed_ticks.Nice / (f32) total_ticks) * 100);
             newData.UtilizationPercent = (u64)(newData.UtilizationPercentKernel + newData.UtilizationPercentUser);
         }
-        current_ticks = loadInfo;
+        _currentTicks = loadInfo;
         
         return newData;
     }
     
     public StreamingCorePerfData Update()
     {
-        var updated_values = MonitoringLoopIteration();
-        _subject.OnNext(updated_values);
-        return updated_values;
+        try
+        {
+            var updated_values = MonitoringLoopIteration();
+            _subject.OnNext(updated_values);
+            return updated_values;
+        }
+        catch (Exception ex)
+        {
+            _subject.OnError(ex);
+            throw;
+        }
     }
 
     public void SetUpdateFrequency(u32 updateFrequencyMs)
     {
-        this.update_frequency_ms = updateFrequencyMs;
+        this._updateFrequencyMs = updateFrequencyMs;
     }
 }

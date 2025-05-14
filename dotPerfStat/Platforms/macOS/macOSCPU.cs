@@ -6,7 +6,6 @@ namespace dotPerfStat.Platforms.macOS;
 using System.Reactive.Linq;
 using System.Runtime.Versioning;
 using PlatformInvoke;
-using Types;
 using Interfaces.CPU;
 
 public interface IMacCPU : ICPU
@@ -56,7 +55,7 @@ public class MacOS_CPU : IMacCPU
 
         for (int i = 0; i < CPUArchInfo.num_cores; i++)
         {
-            macOS_CPUCore new_core = new macOS_CPUCore((u8)i);
+            MacosCPUCore new_core = new MacosCPUCore((u8)i);
             Cores.Add(new_core);
         }
     }
@@ -89,7 +88,9 @@ public class MacOS_CPU : IMacCPU
                 core.Subscribe(Observer.Create<IStreamingCorePerfData>(_ => { }), updateFrequencyMs)
                 );
         }
-        var zipped = Observable.Zip(Cores.Select(core => core.PerformanceData));
+        var zipped = Observable
+            .Zip(Cores.Select(core => core.PerformanceData))
+            .ObserveOn(System.Reactive.Concurrency.ImmediateScheduler.Instance);
         var all_subscription = zipped.Subscribe(observer);
         subscriptions.Add(all_subscription);
         return new CompositeDisposable(subscriptions);

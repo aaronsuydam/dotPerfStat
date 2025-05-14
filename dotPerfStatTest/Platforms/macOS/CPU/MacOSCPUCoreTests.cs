@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Reactive;
 using System.Runtime.Versioning;
 using dotPerfStat.PlatformInvoke;
-using dotPerfStat.Types;
+using dotPerfStat.Platforms.macOS;
 using LibSystem;
 using Xunit.Abstractions;
 
@@ -11,7 +11,7 @@ namespace dotPerfStatTest
     [SupportedOSPlatform("macos")]
     public class MacOSCPUCoreTests
     {
-        private readonly macOS_CPUCore _core;
+        private readonly MacosCPUCore _core;
         private ITestOutputHelper _testOutputHelper;
 
         public MacOSCPUCoreTests(ITestOutputHelper testOutputHelper)
@@ -27,7 +27,7 @@ namespace dotPerfStatTest
             _testOutputHelper = testOutputHelper;
 
             // Arrange: test Core 0 (you may wish to parametrize for other cores)
-            _core = new macOS_CPUCore(3);
+            _core = new MacosCPUCore(3);
         }
         
         [SkippableFact]

@@ -1,5 +1,3 @@
-using dotPerfStat.Types;
-
 namespace dotPerfStat.Interfaces.CPU;
 
 /**
