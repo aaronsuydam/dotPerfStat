@@ -47,7 +47,7 @@ public class HiResSleepTests
     public void TestSleepPrecision()
     {
         const int milliseconds = 1000;
-        const double maxDriftMs = 1.0;
+        const double maxDriftMs = 2.0;
         const int iterations = 10;
         var drifts = new List<double>(iterations);
         

@@ -3,6 +3,7 @@
 public interface IStreamingCorePerfData
 {
     public DateTime Timestamp { get; }
+    public i8 CoreNumber { get; }
     public f32 Frequency { get; }
     public u128 Cycles { get; }
     public u64 UtilizationPercent { get; }

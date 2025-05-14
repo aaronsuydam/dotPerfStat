@@ -12,6 +12,7 @@ namespace dotPerfStat
     public class StreamingCorePerfData : IStreamingCorePerfData
     {
         public DateTime Timestamp { get; set; }
+        public i8 CoreNumber { get; set; } = -1;
         public f32 Frequency { get; set; } = 0;
         public u128 Cycles { get; set; } = 0;
         public u64 UtilizationPercent { get; set; } = 0;
@@ -25,21 +26,18 @@ namespace dotPerfStat
         
         public bool IsEmpty()
         {
-            return (Frequency == 0 
-                    && Cycles == 0 
-                    && UtilizationPercent == 0 
-                    && UtilizationPercentUser == 0 
-                    && UtilizationPercentKernel == 0);
+            return (CoreNumber == -1);
         }
 
         public override string ToString()
         {
-            return $"Timestamp: {Timestamp}\n, " +
-                   $"Frequency (MHz): {(Frequency/(f32)1000000)}\n," +
-                   $" Cycles: {Cycles}\n, " +
-                   $"Utilization (total): {UtilizationPercent}%\n" +
-                   $"Utilization (user): {UtilizationPercentUser}%\n" +
-                   $"Utilization (kernel): {UtilizationPercentKernel}%\n";
+            return $"Core: {CoreNumber}\n" +
+                   $"   Timestamp: {Timestamp}\n" +
+                   $"   Frequency (MHz): {(Frequency/(f32)1000000)}\n" +
+                   $"   Cycles: {Cycles/1000000000}\n " +
+                   $"   Utilization (total): {UtilizationPercent}%\n" +
+                   $"   Utilization (user): {UtilizationPercentUser}%\n" +
+                   $"   Utilization (kernel): {UtilizationPercentKernel}%\n";
         }
     }
     

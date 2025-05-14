@@ -59,6 +59,7 @@ public partial class MacosCPUCore : ICPUCore
     private StreamingCorePerfData MonitoringLoopIteration()
     {
         StreamingCorePerfData newData = new(_sw.GetTimestamp());
+        newData.CoreNumber = (SByte)this.CoreNumber;
         // First, ask how many fixed-function counters the kernel supports
         u32 nCtrs = (u32)KPCNative.kpc_get_counter_count(KPCNative.KPC_CLASS_FIXED_MASK);
         if (nCtrs == 0)

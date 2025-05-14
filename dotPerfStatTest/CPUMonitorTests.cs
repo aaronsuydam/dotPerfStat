@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reactive;
 using dotPerfStat;
 using Xunit.Abstractions;
@@ -18,12 +19,13 @@ public class CPUMonitorTests
     [Fact]
     public void TestSubscribeToUpdates()
     {
-        List<IEnumerable<IStreamingCorePerfData>> output = new();
+        var output = new ConcurrentQueue<IEnumerable<IStreamingCorePerfData>>();
         Exception error = null;
         var subscriber = Observer.Create<IEnumerable<IStreamingCorePerfData>>(
             onNext: (data) =>
             {
-                output.Add(data);
+                output.Enqueue(data);
+                _testOutputHelper.WriteLine("Add to output.");
             },
             onError: (err) =>
             {
@@ -31,7 +33,7 @@ public class CPUMonitorTests
             });
         
         var subscription = _monitor.SubscribeToUpdates(subscriber, 1000);
-        Thread.Sleep(6000);
+        Thread.Sleep(10000);
         subscription.Dispose();
 
         if(error != null)

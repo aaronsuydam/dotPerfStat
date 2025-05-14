@@ -8,3 +8,4 @@ riderModule.iml
 .vs/
 *.sln.DotSettings.user
 .env
+**.DS_Store
