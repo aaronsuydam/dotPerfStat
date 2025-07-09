@@ -1,7 +1,18 @@
-using System;
+// HiResSleep.cs
+// Provides high-precision thread sleep with ~1 ms resolution on Windows, Linux, and macOS.
+//
+// On Windows, uses a high-resolution waitable timer (`CreateWaitableTimerEx` with
+// `CREATE_WAITABLE_TIMER_HIGH_RESOLUTION`).
+//   Documentation: https://learn.microsoft.com/windows/win32/api/synchapi/nf-synchapi-createwaitabletimerex
+//
+// On Linux and macOS, uses POSIX `nanosleep` for high-resolution delays.
+//   Documentation: https://man7.org/linux/man-pages/man2/nanosleep.2.html
+//
+// Implementation by OpenAI's ChatGPT (https://openai.com).
+
+
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 public class HiResSleep
 {

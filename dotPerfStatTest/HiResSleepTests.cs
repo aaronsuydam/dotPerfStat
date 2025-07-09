@@ -48,7 +48,7 @@ public class HiResSleepTests
     {
         const int milliseconds = 1000;
         const double maxDriftMs = 2.0;
-        const int iterations = 10;
+        const int iterations = 100;
         var drifts = new List<double>(iterations);
         
         for (int i = 1; i <= iterations; i++)

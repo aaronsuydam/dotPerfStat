@@ -1,5 +1,5 @@
-using System.Collections.Concurrent;
-using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using dotPerfStat;
 using Xunit.Abstractions;
 
@@ -17,34 +17,24 @@ public class CPUMonitorTests
     }
     
     [Fact]
-    public void TestSubscribeToUpdates()
+    public async Task TestSubscribeToUpdates()
     {
-        var output = new ConcurrentQueue<IEnumerable<IStreamingCorePerfData>>();
-        Exception error = null;
-        var subscriber = Observer.Create<IEnumerable<IStreamingCorePerfData>>(
-            onNext: (data) =>
-            {
-                output.Enqueue(data);
-                _testOutputHelper.WriteLine("Add to output.");
-            },
-            onError: (err) =>
-            {
-                error = err;
-            });
-        
-        var subscription = _monitor.SubscribeToUpdates(subscriber, 1000);
-        Thread.Sleep(10000);
-        subscription.Dispose();
+        // Wrap the subscription in an observable
+        var observable = Observable.Create<IEnumerable<IStreamingCorePerfData>>(observer =>
+            _monitor.SubscribeToUpdates(observer, 1000));
 
-        if(error != null)
-            Assert.Fail(error.Message);
-        
-        // Print the retrieved data
-        foreach (var core in output.ElementAt(1))
+        // Await exactly two updates
+        var updates = await observable
+            .Take(3)        // take exactly two emissions
+            .ToArray()      // buffer into array
+            .ToTask();      // convert to Task
+
+        // Log the second update
+        foreach (var core in updates[2])
             _testOutputHelper.WriteLine(core.ToString());
-        _testOutputHelper.WriteLine($"Number of updates: {output.Count}");
-        
-        // Assert that we successfully retrieve data
-        Assert.True(output.Count > 0);
+        _testOutputHelper.WriteLine($"Number of updates: {updates.Length}");
+
+        // Assert exactly two updates were received
+        Assert.Equal(3, updates.Length);
     }
 }
