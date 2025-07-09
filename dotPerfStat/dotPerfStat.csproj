@@ -24,7 +24,7 @@
 
     <ItemGroup>
       <Compile Remove="MemoryService.cs" />
-      <None Include="MemoryService.cs" />
+      <None Include="Services\MemoryService.cs" />
     </ItemGroup>
 
     <ItemGroup>

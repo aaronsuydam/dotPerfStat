@@ -1,6 +1,6 @@
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using dotPerfStat;
+using dotPerfStat.Services;
 using Xunit.Abstractions;
 
 namespace dotPerfStatTest;

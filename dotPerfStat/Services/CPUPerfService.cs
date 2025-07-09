@@ -2,7 +2,7 @@
 using dotPerfStat.Interfaces.CPU;
 using dotPerfStat.Platforms.macOS;
 
-namespace dotPerfStat
+namespace dotPerfStat.Services
 {
     
     public class CPUMonitor
